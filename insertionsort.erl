@@ -1,46 +1,46 @@
 -module(insertionsort). 
--export([for/4, while/1, while/2, test/0, insertionS/1, exception/1, ausl/2, getEle/5]). 
+-export([for/4, while/2, while/4, test/0, insertionS/1, exception/1, ausl/2, compare/3]). 
 
 %-------------------------WHILE-------------------------- 
-while(L) -> while(L,0). 
-while([], Acc) -> Acc;
+while(L, StopIndex) -> while(L,0, StopIndex, []). 
+while(_, Acc, StopIndex, WhileConcat) when Acc == StopIndex -> WhileConcat;
 
-while([_|T], Acc) ->
-   io:fwrite("~w~n",[Acc]), 
-   while(T,Acc+1).
+while([H|T], Acc, StopIndex, WhileConcat) ->
+   Liste = WhileConcat ++ [H],
+   io:fwrite("~w~n",[H]), 
+   while(T,Acc+1, StopIndex, Liste).
 %-------------------------FOR----------------------------
-for(N,I,Liste,CurrentElement) when N > 0, I < N ->  
+for(N,Index,Liste,CurrentElement) when N > 0, Index < N ->  
    if
       CurrentElement < 0 ->
-         getEle(Liste,I,N,I,Liste);
+         io:fwrite("CurrentElement nicht gesetzt\n"),
+         NewCurrent = ausl(Liste, Index),
+         for(N, Index,Liste, NewCurrent);
       true ->
-         io:fwrite("gay")
-   end,
-   io:fwrite("lol \n"),
-   for(N,I+1,Liste,CurrentElement);
-
-for(N,I,Liste,CurrentElement) when N > 0; I == N ->  
-      ok.
+         io:format("CurrentElement ist: ~p.\n", [CurrentElement]),
+         compare(Index, Liste, CurrentElement)
+   end
+.
 %-------------------------GETELEMENT---------------------
-getEle(L,I,N,I_old,Liste_old) when L == [] -> exception(3);
-
-getEle([H|T],0,N,I_old,Liste_old) ->
-  for(N,I_old,Liste_old,H);
-
-getEle([H|T],I,N,I_old,Liste_old) ->
-   getEle(T,I - 1,N,I_old,Liste_old).
-%-------------------------TEST---------------------------  
-test() -> 
-   X = [1,2,3,4], 
-   ausl(X,0).
-
 ausl(L,I) when L == [] -> exception(3);
-
 ausl([H|T],0) ->
   H;
 
 ausl([H|T],I) ->
-   ausl(T,I - 1).
+   io:fwrite("lese aus\n"),
+  ausl(T,I - 1).
+%-------------------------COMPARE------------------------
+compare(Index, Liste, CurrentElement) ->
+   PrevElement = ausl(Liste, Index - 1),
+   Windex = Index,
+   if
+      CurrentElement < PrevElement ->         
+         Test = [CurrentElement] ++ while(Liste, Index),
+         io:format("Test ist: ~p.\n", [Test]);
+         true ->
+         io:fwrite("nicht cool\n")
+   end
+.
 %--------------------------------------------------------
 %--------------------------------------------------------
 
@@ -56,3 +56,7 @@ exception(Exnumber) ->
       3 -> io:fwrite("Der Index ist Out of Bounds! \n")
    end.
 
+%-------------------------TEST---------------------------  
+test() -> 
+   X = [1,2,3,4], 
+   ausl(X,0).
